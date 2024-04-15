@@ -119,7 +119,6 @@ st.altair_chart(create_top_artists_bar_plot(filtered_data, selected_top_n_artist
 # ------ Visualisation 3 ---------
 st.subheader("Historical Trend of number of tracks")
 
-# Function to create evolution plot of number of tracks over time
 def create_tracks_evolution_plot(data, time_unit):
     # Convert release_date to string for grouping
     data['release_date_str'] = data['release_date'].dt.strftime('%Y-%m')  # Format as year-month string
@@ -158,6 +157,8 @@ st.write("### Evolution of Number of Tracks Over Time")
 st.altair_chart(create_tracks_evolution_plot(spotify, selected_time_unit), use_container_width=True)
 
 # ------ Visualisation 4 ---------
+st.subheader("Average Musical Characteristics of Trending Tracks Over Time")
+
 # Unique month-year values
 spotify['month_years'] = spotify['release_date'].dt.strftime('%Y-%m')
 month_years = sorted(spotify['month_years'].unique())
@@ -169,12 +170,18 @@ end_date = st.selectbox('End Date', month_years, index=len(month_years) - 1)
 # Filter data based on selection
 filtered_data = spotify[(spotify['month_years'] >= start_date) & (spotify['month_years'] <= end_date)]
 
+# Create an interval selection to select points within a rectangular area
+selection = alt.selection_interval(encodings=['x', 'y'])
+
 # Scatter plot
 scatter_base = alt.Chart(filtered_data).properties(width=800, height=300)
 scatter = scatter_base.mark_point().encode(
     x='release_date:T',
     y='streams:Q',
-    tooltip=['track_name:N', 'artist(s)_name:N', 'streams:Q', 'release_date:T', 'bpm:Q']
+    color=alt.condition(selection, alt.value('blue'), alt.value('lightgray')),
+    tooltip=['track_name:N', 'artist(s)_name:N', 'streams:Q', 'release_date:T']
+).add_selection(
+    selection
 )
 
 # Bar plot for musical characteristics
@@ -186,6 +193,8 @@ bars = bar_base.mark_bar().encode(
                     scale=alt.Scale(domain=['Danceability', 'Valence', 'Energy'],
                                     range=['#e94f13', '#989681', '#e69138'])),
     tooltip=['Percentage:Q']
+).transform_filter(
+    selection
 ).transform_aggregate(
     Danceability='mean(danceability_%)',
     Valence='mean(valence_%)',
@@ -201,4 +210,3 @@ chart = alt.vconcat(scatter, bars)
 
 # Display the concatenated chart
 st.altair_chart(chart, use_container_width=True)
-
