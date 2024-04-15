@@ -33,12 +33,16 @@ spotify['release_date'] = pd.to_datetime(spotify['released_year'].astype(str) + 
 # ------ Visualisation 1 ---------
 st.subheader("Top tracks plot and Radar plot with Attributes")
 
+# Unique month-year values
+spotify['month_years'] = spotify['release_date'].dt.strftime('%Y-%m')
+month_years = sorted(spotify['month_years'].unique())
+
 # Sidebar for filtering options
 st.sidebar.title("Filter Options")
 
-# Create dropdown widgets for start_date and end_date
-start_date = st.sidebar.date_input("Start Date", spotify['release_date'].min())
-end_date = st.sidebar.date_input("End Date", spotify['release_date'].max())
+# Streamlit selectors for start and end dates
+start_date = st.sidebar.selectbox('Start Date', month_years, index=0)
+end_date = st.sidebar.selectbox('End Date', month_years, index=len(month_years) - 1)
 
 # Convert start_date and end_date to datetime for filtering
 start_date = pd.to_datetime(start_date)
@@ -158,10 +162,6 @@ st.altair_chart(create_tracks_evolution_plot(spotify, selected_time_unit), use_c
 
 # ------ Visualisation 4 ---------
 st.subheader("Average Musical Characteristics of Trending Tracks Over Time")
-
-# Unique month-year values
-spotify['month_years'] = spotify['release_date'].dt.strftime('%Y-%m')
-month_years = sorted(spotify['month_years'].unique())
 
 # Streamlit selectors for start and end dates
 start_date = st.selectbox('Start Date', month_years, index=0)
