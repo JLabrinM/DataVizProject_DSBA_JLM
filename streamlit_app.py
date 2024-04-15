@@ -123,17 +123,20 @@ st.subheader("Historical Trend of number of tracks")
 def create_tracks_evolution_plot(data, time_unit):
     # Group the data by release date and count the number of tracks
     if time_unit == 'Year':
-        tracks_evolution = data.groupby(data['release_date'].dt.year)['track_name'].count().reset_index()
+        tracks_evolution = data.groupby(data['release_date'].dt.year)['track_name'].nunique().reset_index()
         x_axis_title = 'Year'
     elif time_unit == 'Month':
-        tracks_evolution = data.groupby(data['release_date'].dt.to_period('M'))['track_name'].count().reset_index()
+        tracks_evolution = data.groupby(data['release_date'].dt.to_period('M'))['track_name'].nunique().reset_index()
         x_axis_title = 'Month'
+
+    # Rename columns for consistency
+    tracks_evolution.columns = ['release_date', 'number_of_tracks']
 
     # Create the line plot
     chart = alt.Chart(tracks_evolution).mark_line().encode(
         x=alt.X('release_date:T', title=x_axis_title),
-        y=alt.Y('track_name:Q', title='Number of Tracks'),
-        tooltip=['release_date:T', 'track_name:Q']
+        y=alt.Y('number_of_tracks:Q', title='Number of Tracks'),
+        tooltip=['release_date:T', 'number_of_tracks:Q']
     ).properties(
         width=800,
         height=400
