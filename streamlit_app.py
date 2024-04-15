@@ -41,8 +41,8 @@ month_years = sorted(spotify['month_years'].unique())
 st.sidebar.title("Filter Options")
 
 # Streamlit selectors for start and end dates
-start_date = st.sidebar.selectbox('Start Date', month_years, index=0)
-end_date = st.sidebar.selectbox('End Date', month_years, index=len(month_years) - 1)
+start_date = st.sidebar.selectbox('Start Date', month_years, index=0, key='start_date_selectbox')
+end_date = st.sidebar.selectbox('End Date', month_years, index=len(month_years) - 1, key='end_date_selectbox')
 
 # Convert start_date and end_date to datetime for filtering
 start_date = pd.to_datetime(start_date)
